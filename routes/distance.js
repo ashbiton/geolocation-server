@@ -2,7 +2,7 @@ var express = require('express');
 var debug = require('debug')('geolocation-server:server');
 var router = express.Router();
 const axios = require('axios');
-const API_KEY = "YOUR_API_KEY";
+const API_KEY = "AIzaSyCTJGhcsmC434KLDpYTgPicWMpJSc4uGsg";
 
 
 // this function returns the distance in KMs between a single source and single destination
@@ -26,7 +26,7 @@ router.get('/', async function (req, res, next) {
             else {
                 debug(result);
                 let distanceInMeters = result.distance.value;
-                let distance = Math.fround(distanceInMeters % 1000);
+                let distance = (distanceInMeters / 1000).toFixed(2);
                 res.status(200).send({ distance: distance });
             }
         }
