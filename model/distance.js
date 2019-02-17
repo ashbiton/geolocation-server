@@ -57,5 +57,9 @@ module.exports = db => {
         return this.findOne(...args).exec();
     };
 
+    schema.statics.MAX_HITS = async function () {
+        return this.find().sort({hits:-1}).limit(1).exec();
+    }
+
     db.model('Distance', schema, 'Distances'); 
 }
