@@ -2,7 +2,7 @@ const express = require('express');
 const debug = require('debug')('geolocation-server:server');
 const router = express.Router();
 const axios = require('axios');
-const API_KEY = "AIzaSyCTJGhcsmC434KLDpYTgPicWMpJSc4uGsg";
+const API_KEY = "YOUR_API_KEY";
 let Distance = require('../model').MODEL("Distance")
 
 // since the distance stays the same no matter which one is the source and which one is the destination
