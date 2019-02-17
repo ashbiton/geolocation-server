@@ -3,7 +3,7 @@ const debug = require('debug')('geolocation-server:server');
 const router = express.Router();
 const axios = require('axios');
 const API_KEY = "AIzaSyCTJGhcsmC434KLDpYTgPicWMpJSc4uGsg";
-let Distance = require('../model')("Distance")
+let Distance = require('../model').MODEL("Distance")
 
 // since the distance stays the same no matter which one is the source and which one is the destination
 // we set it so the source is always the place which comes first in alphabetical order
@@ -23,26 +23,30 @@ router.get('/', async function (req, res, next) {
     else {
         const destination = query.destination;
         const source = query.source;
-        let isDBAccess = true;
+        let isDBAccess = require('../model').DB_ACCESS();
+        debug("isDBAccess: "+isDBAccess);
         let isDocExists = false;
-        try{
-            let document = await Distance.REQUEST(objectPlacesOrdered(source,destination));
-            if (document){
-                isDocExists = true;
-                let distance = document.distance;
-                Distance.findOneAndUpdate({_id: document._id},{hits : document.hits + 1},(err,doc,res)=>{
-                    if (err){
-                        debug("failed to update the hits field in the doc");
-                    }else {
-                        debug("successfully updated the number of hits");
-                    }
-                });
-                res.status(200).send({distance: (distance / 1000).toFixed(2)})
+        if (isDBAccess){
+            try{
+                let document = await Distance.REQUEST(objectPlacesOrdered(source,destination));
+                if (document){
+                    isDocExists = true;
+                    let distance = document.distance;
+                    Distance.findOneAndUpdate({_id: document._id},{hits : document.hits + 1},(err,doc,res)=>{
+                        if (err){
+                            debug("failed to update the hits field in the doc");
+                        }else {
+                            debug("successfully updated the number of hits");
+                        }
+                    });
+                    res.status(200).send({distance: (distance / 1000).toFixed(2)})
+                }
+            }
+            catch(error){
+                isDBAccess = false;
             }
         }
-        catch(error){
-            isDBAccess = false;
-        }
+       
         if (!isDBAccess || !isDocExists){  
             try {
                 let fullRes = await axios.get(`https://maps.googleapis.com/maps/api/distancematrix/json?origins=${source}&destinations=${destination}&key=${API_KEY}`)

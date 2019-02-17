@@ -10,4 +10,5 @@ let db = mongo.createConnection();
 })();
 debug('Pending DB connection');
 require("./distance")(db);
-module.exports = model => db.model(model);	
+module.exports.DB_ACCESS = () => db.readyState == 1;
+module.exports.MODEL = model => db.model(model);	
